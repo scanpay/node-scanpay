@@ -1,0 +1,4 @@
+node_modules/*
+.jscsrc
+.jshintrc
+.DS_Store

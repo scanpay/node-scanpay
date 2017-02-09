@@ -1,0 +1,27 @@
+{
+  "name": "scanpay",
+  "version": "1.0.1",
+  "description": "A node.js library for Scanpay",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scanpaydk/node-scanpay.git"
+  },
+  "keywords": [
+    "scanpay",
+    "payment gateway",
+    "api"
+  ],
+  "engines": {
+    "node": ">=4.3.2"
+  },
+  "author": "Scanpay <support@scanpay.dk> (https://scanpay.dk)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/scanpaydk/node-scanpay/issues"
+  },
+  "homepage": "https://github.com/scanpaydk/node-scanpay#readme"
+}
