@@ -4,6 +4,7 @@
 */
 
 const https = require('https');
+const crypto = require('crypto');
 const version = 'nodejs-1.0.1';
 
 function merge(obj1, obj2) {
@@ -15,6 +16,20 @@ function merge(obj1, obj2) {
         }
     }
     return obj1;
+}
+
+function constTimeEquals(a, b) {
+    if (a.length !== b.length) {
+        return false;
+    }
+    if (typeof crypto.timingSafeEqual === 'function') {
+        return crypto.timingSafeEqual(new Buffer(a), new Buffer(b));
+    }
+    let neq = 0;
+    for (let i = 0; i < a.length; i++) {
+        neq |= a[i] ^ b[i];
+    }
+    return !neq;
 }
 
 function request(opts, data) {
@@ -103,5 +118,23 @@ module.exports = function (apikey) {
             throw 'Internal Server Error';
         });
     };
+
+    module.handlePing = function (body, signature='') {
+        const mySig = crypto.createHmac('sha256', apikey)
+            .update(body)
+            .digest('base64');
+        if (!constTimeEquals(mySig, signature)) {
+            throw 'invalid signature';
+        }
+
+        let reqObj = JSON.parse(body);
+        if (reqObj.seq !== parseInt(reqObj.seq) ||
+            reqObj.shopid !== parseInt(reqObj.shopid) ||
+            reqObj.seq < 0 || reqObj.shopid < 0) {
+            throw 'missing or invalid fields';
+        }
+        return reqObj;
+    };
+
     return module;
 };

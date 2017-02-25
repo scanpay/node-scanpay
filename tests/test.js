@@ -3,7 +3,7 @@
     Node >= 4.4.5 (Arrow functions & Let)
 */
 const apikey = ' API KEY ';
-const scanpay = require('./')(apikey);
+const scanpay = require('../')(apikey);
 
 const order = {
     orderid: 'a766409',
@@ -61,11 +61,11 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 scanpay.newURL(order, options).then(res => {
     console.log('newURL: ' + res.url);
 }, err => {
-    console.log(err);
+    console.log('newURL error: ' + err);
 });
 
 scanpay.seq(10, options).then(res => {
-    console.log(res.seq);
+    console.log('seq: ' + res.seq);
 }).catch(err => {
-    console.log('seq: ' + err);
+    console.log('seq error: ' + err);
 });
