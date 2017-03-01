@@ -94,7 +94,7 @@ module.exports = function (apikey) {
 
         return request(options, data).then((o) => {
             if (o.url) {
-                return o;
+                return o.url;
             }
             throw 'Internal Server Error';
         });
