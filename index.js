@@ -3,9 +3,9 @@
     Node >= 4.4.5: Arrow functions, Let, Promises (4.0+)
 */
 
+const version = 'nodejs-1.1.0';
 const https = require('https');
 const crypto = require('crypto');
-const version = 'nodejs-1.0.1';
 
 function merge(obj1, obj2) {
     for (let o in obj2) {
