@@ -8,13 +8,10 @@ const http = require('http');
 
 const server = http.createServer((req, res) => {
     let body = '';
-    req.on('data', function (chunk) {
-        body += chunk;
-    });
+    req.on('data', chunk => { body += chunk; });
 
-    req.on('end', function () {
+    req.on('end', () => {
         let reqObj;
-        let err;
         try {
             reqObj = scanpay.handlePing(body, req.headers['x-signature']);
             console.log('Received ping:\nseq=' + reqObj.seq + '\nshopid=' + reqObj.shopid + '\n');
