@@ -8,7 +8,6 @@ const scanpay = require('../')(apikey);
 const order = {
     orderid: 'a766409',
     language: '',
-    successurl: 'https://example.dk/success',
     items: [
         {
             name: 'Pink Floyd: The Dark Side Of The Moon',
@@ -49,23 +48,14 @@ const order = {
 };
 
 const options = {
-    hostname: 'api.test.scanpay.dk', // Override default
+    // hostname: 'api.scanpay.dk', // Override default
     headers: {
         'X-Cardholder-IP': '189.127.159.146' // Customer IP address
     }
 };
 
-// Hack: Only needed for https.Agent() because of self-signed cert.
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-scanpay.newURL(order, options).then(res => {
-    console.log('newURL: ' + res.url);
+scanpay.newURL(order, options).then(url => {
+    console.log('newURL: ' + url);
 }, err => {
-    console.log('newURL error: ' + err);
-});
-
-scanpay.seq(10, options).then(res => {
-    console.log('seq: ' + res.seq);
-}).catch(err => {
-    console.log('seq error: ' + err);
+    console.log(err);
 });
