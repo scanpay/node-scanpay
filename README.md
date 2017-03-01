@@ -4,7 +4,9 @@ This is a node.js client library for Scanpay. You can find the documentation at 
 
 ## Installation
 
-`npm install scanpay`
+```bash
+npm install scanpay
+```
 
 To create a payment link all you need to do is:
 
