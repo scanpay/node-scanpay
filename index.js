@@ -39,7 +39,7 @@ function request(opts, data) {
             // handle http errors
             if (res.statusCode !== 200) {
                 if (res.statusCode === 403) {
-                    reject('Invalid API-key');
+                    return reject('invalid API-key');
                 }
                 return reject(res.statusCode + ' ' + res.statusMessage);
             }
@@ -51,10 +51,12 @@ function request(opts, data) {
                 try {
                     json = JSON.parse(body);
                 } catch (e) {
-                    reject('Unable to parse JSON, ' + e);
+                    reject('unable to parse JSON, ' + e);
+                    return;
                 }
                 if (json.error) {
                     reject(json.error);
+                    return;
                 }
                 resolve(json);
             });
@@ -67,7 +69,7 @@ function request(opts, data) {
         });
 
         // handle connection errors of the req
-        req.on('error', (err) => reject('No connection to server'));
+        req.on('error', (err) => reject('no connection to server'));
         if (data) {
             req.write(JSON.stringify(data));
         }
@@ -96,7 +98,7 @@ module.exports = function (apikey) {
             if (o.url) {
                 return o.url;
             }
-            throw 'Internal Server Error';
+            throw 'internal server error: missing fields';
         });
     };
 
@@ -115,7 +117,7 @@ module.exports = function (apikey) {
             if (typeof o.seq === 'number' && o.changes.constructor === Array) {
                 return o;
             }
-            throw 'Internal Server Error';
+            throw 'internal server error: missing fields';
         });
     };
 
