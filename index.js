@@ -35,27 +35,19 @@ function constTimeEquals(a, b) {
 function request(opts, data) {
     return new Promise((resolve, reject) => {
         const req = https.request(opts, (res) => {
-
-            // handle http errors
-            if (res.statusCode !== 200) {
-                if (res.statusCode === 403) {
-                    return reject('invalid API-key');
-                }
-                return reject(res.statusCode + ' ' + res.statusMessage);
-            }
-
+            let hasError = res.statusCode !== 200;
             let body = '';
             res.on('data', chunk => { body += chunk; });
             res.on('end', () => {
                 let json;
+                if (hasError) {
+                    reject(body.split('\n')[0]);
+                    return;
+                }
                 try {
                     json = JSON.parse(body);
                 } catch (e) {
-                    reject('unable to parse JSON, ' + e);
-                    return;
-                }
-                if (json.error) {
-                    reject(json.error);
+                    reject('unable to parse JSON response, ' + e);
                     return;
                 }
                 resolve(json);
@@ -69,7 +61,7 @@ function request(opts, data) {
         });
 
         // handle connection errors of the req
-        req.on('error', (err) => reject('no connection to server'));
+        req.on('error', (err) => reject('connection failed: ' + err));
         if (data) {
             req.write(JSON.stringify(data));
         }
