@@ -1,6 +1,6 @@
 {
   "name": "scanpay",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A node.js library for Scanpay",
   "main": "index.js",
   "scripts": {
@@ -12,11 +12,12 @@
   },
   "keywords": [
     "scanpay",
+    "payments",
     "payment gateway",
-    "api"
+    "Scandinavia"
   ],
   "engines": {
-    "node": ">=4.3.2"
+    "node": ">=6.6.0"
   },
   "author": "Scanpay <support@scanpay.dk> (https://scanpay.dk)",
   "license": "MIT",
