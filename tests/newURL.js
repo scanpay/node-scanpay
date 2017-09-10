@@ -1,9 +1,15 @@
 /*
-    Scanpay ApS
-    Node >= 4.4.5 (Arrow functions & Let)
+    help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
 */
-const apikey = ' API KEY ';
+const apikey = '65:kbzU74IUyXO3zeRauOX/YusRSuH5WNFvoVYFYAi4J8TA5hOOjxrgsSxdTylXQ2pa';
 const scanpay = require('../')(apikey);
+
+const options = {
+    hostname: 'api.test.scanpay.dk',
+    headers: {
+        'X-Cardholder-IP': '189.127.159.146' // Customer IP address
+    }
+};
 
 const order = {
     orderid: 'a766409',
@@ -45,13 +51,6 @@ const order = {
         state: '',
         country: 'DK'
     },
-};
-
-const options = {
-    // hostname: 'api.scanpay.dk', // Override default
-    headers: {
-        'X-Cardholder-IP': '189.127.159.146' // Customer IP address
-    }
 };
 
 scanpay.newURL(order, options).then(url => {
