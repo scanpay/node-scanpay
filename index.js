@@ -1,16 +1,18 @@
 /*
-    Scanpay: NodeJS SDK:
-    Node >= 4.4.5: Arrow functions, Let, Promises (4.0+)
+    Scanpay: NodeJS SDK
+    help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
+    Node >= v6.6.0
 */
-
-const version = 'nodejs-1.1.0';
+const version = 'nodejs-1.2.0';
 const https = require('https');
 const crypto = require('crypto');
+let apikey;
 
-function merge(obj1, obj2) {
+/*  mergeObjs: Copy all properties of obj2 to obj1 */
+function mergeObjs(obj1, obj2) {
     for (let o in obj2) {
         if (typeof obj2[o] === 'object') {
-            merge(obj1[o], obj2[o]);
+            mergeObjs(obj1[o], obj2[o]);
         } else {
             obj1[o] = obj2[o];
         }
@@ -18,50 +20,44 @@ function merge(obj1, obj2) {
     return obj1;
 }
 
-function constTimeEquals(a, b) {
-    if (a.length !== b.length) {
-        return false;
-    }
-    if (typeof crypto.timingSafeEqual === 'function') {
-        return crypto.timingSafeEqual(new Buffer(a), new Buffer(b));
-    }
-    let neq = 0;
-    for (let i = 0; i < a.length; i++) {
-        neq |= a[i] ^ b[i];
-    }
-    return !neq;
+/*  authMsg: Authenticate message without leaking metadata */
+function authMsg(msg, s2) {
+    const s1 = crypto.createHmac('sha256', apikey).update(msg).digest('base64');
+    return s1.length === s2.length &&
+        crypto.timingSafeEqual(Buffer.from(s1), Buffer.from(s2));
+}
+
+/*  throwError: Handle scanpay errors */
+function throwError(str) {
+    throw new Error('invalid response from scanpay; ' + str);
 }
 
 function request(opts, data) {
     return new Promise((resolve, reject) => {
         const req = https.request(opts, (res) => {
-            let hasError = res.statusCode !== 200;
+            if (res.statusCode !== 200) {
+                return reject(res.statusMessage);
+            }
+
             let body = '';
-            res.on('data', chunk => { body += chunk; });
+            res.on('data', (chunk) => body += chunk);
             res.on('end', () => {
-                let json;
-                if (hasError) {
-                    reject(body.split('\n')[0]);
-                    return;
-                }
                 try {
-                    json = JSON.parse(body);
+                    resolve(JSON.parse(body));
                 } catch (e) {
-                    reject('unable to parse JSON response, ' + e);
-                    return;
+                    reject(new Error('unable to parse JSON response'));
                 }
-                resolve(json);
             });
         });
 
-        // Timeout after 30 seconds
         req.on('socket', (socket) => {
-            socket.setTimeout(30000);
-            socket.on('timeout', () => { req.abort(); });
+            socket.setTimeout(30000); // 30s
+            socket.on('timeout', () => req.abort());
         });
 
-        // handle connection errors of the req
-        req.on('error', (err) => reject('connection failed: ' + err));
+        // handle connection throwErrorors of the req
+        req.on('error', (e) => reject('connection failed: ' + e));
+
         if (data) {
             req.write(JSON.stringify(data));
         }
@@ -69,66 +65,61 @@ function request(opts, data) {
     });
 }
 
-
-module.exports = function (apikey) {
-    const module = {};
-
-    module.newURL = function (data, opts) {
-        const options = {
-            hostname: 'api.scanpay.dk',
-            path: '/v1/new',
-            method: 'POST',
-            auth: apikey,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Scanpay-SDK': version
-            }
-        };
-        if (opts) { merge(options, opts); }
-
-        return request(options, data).then((o) => {
-            if (o.url) {
-                return o.url;
-            }
-            throw 'internal server error: missing fields';
-        });
-    };
-
-    module.seq = function (seq, opts) {
-        const options = {
-            hostname: 'api.scanpay.dk',
-            path: '/v1/seq/' + seq,
-            auth: apikey,
-            headers: {
-                'X-Scanpay-SDK': version
-            }
-        };
-        if (opts) { merge(options, opts); }
-
-        return request(options).then((o) => {
-            if (typeof o.seq === 'number' && o.changes.constructor === Array) {
-                return o;
-            }
-            throw 'internal server error: missing fields';
-        });
-    };
-
-    module.handlePing = function (body, signature='') {
-        const mySig = crypto.createHmac('sha256', apikey)
-            .update(body)
-            .digest('base64');
-        if (!constTimeEquals(mySig, signature)) {
-            throw 'invalid signature';
+function newURL(data, opts) {
+    const options = {
+        hostname: 'api.scanpay.dk',
+        path: '/v1/new',
+        method: 'POST',
+        auth: apikey,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Scanpay-SDK': version
         }
-
-        let reqObj = JSON.parse(body);
-        if (reqObj.seq !== parseInt(reqObj.seq) ||
-            reqObj.shopid !== parseInt(reqObj.shopid) ||
-            reqObj.seq < 0 || reqObj.shopid < 0) {
-            throw 'missing or invalid fields';
-        }
-        return reqObj;
     };
+    if (opts) { mergeObjs(options, opts); }
 
-    return module;
+    return request(options, data).then((o) => {
+        if (!o.url || o.url.slice(0, 8) !== 'https://') {
+            throwError('missing url');
+        }
+        return o.url;
+    });
+}
+
+function seq(seq, opts) {
+    const seqIsInt = Number.isInteger(seq);
+    const options = {
+        hostname: 'api.scanpay.dk',
+        path: seqIsInt ? '/v1/seq/' + seq : '/v1/seq/',
+        auth: apikey,
+        headers: {
+            'X-Scanpay-SDK': version
+        }
+    };
+    if (opts) { mergeObjs(options, opts); }
+
+    return request(options).then((o) => {
+        if (seqIsInt && !Array.isArray(o.changes)) {
+            throwError('missing changes[]');
+        }
+        if (!Number.isInteger(o.seq)) {
+            throwError('missing seq');
+        }
+        return o;
+    });
+}
+
+function handlePing(msg, signature) {
+    if (!signature || !authMsg(msg, signature)) {
+        throw 'invalid signature';
+    }
+    const o = JSON.parse(msg);
+    if (!Number.isInteger(o.seq)) { throwError('missing seq'); }
+    if (!Number.isInteger(o.shopid)) { throwError('missing shopid'); }
+    return o;
+}
+
+module.exports = (key) => {
+    apikey = key;
+    return { newURL, seq, handlePing };
 };
