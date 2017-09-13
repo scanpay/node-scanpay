@@ -87,10 +87,12 @@ function newURL(data, opts) {
 }
 
 function seq(seq, opts) {
-    const seqIsInt = Number.isInteger(seq);
+    if (!Number.isInteger(seq)) {
+        throw new Error('seq argument must be integer')
+    }
     const options = {
         hostname: 'api.scanpay.dk',
-        path: seqIsInt ? '/v1/seq/' + seq : '/v1/seq/',
+        path: '/v1/seq/' + seq,
         auth: apikey,
         headers: {
             'X-Scanpay-SDK': version
@@ -99,13 +101,31 @@ function seq(seq, opts) {
     if (opts) { mergeObjs(options, opts); }
 
     return request(options).then((o) => {
-        if (seqIsInt && !Array.isArray(o.changes)) {
+        if (!Array.isArray(o.changes)) {
             throwError('missing changes[]');
         }
         if (!Number.isInteger(o.seq)) {
             throwError('missing seq');
         }
         return o;
+    });
+}
+
+function maxSeq(opts) {
+    const options = {
+        hostname: 'api.scanpay.dk',
+        path: '/v1/seq',
+        auth: apikey,
+        headers: {
+            'X-Scanpay-SDK': version
+        }
+    };
+    if (opts) { mergeObjs(options, opts); }
+    return request(options).then((o) => {
+        if (!Number.isInteger(o.seq)) {
+            throwError('missing seq');
+        }
+        return o.seq;
     });
 }
 
@@ -121,5 +141,5 @@ function handlePing(msg, signature) {
 
 module.exports = (key) => {
     apikey = key;
-    return { newURL, seq, handlePing };
+    return { newURL, seq, maxSeq, handlePing };
 };

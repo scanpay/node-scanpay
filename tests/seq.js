@@ -1,33 +1,48 @@
 /*
     help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
 */
-const apikey = '65:kbzU74IUyXO3zeRauOX/YusRSuH5WNFvoVYFYAi4J8TA5hOOjxrgsSxdTylXQ2pa';
+const apikey = '1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W';
 const scanpay = require('../')(apikey);
 
 const options = {
     hostname: 'api.test.scanpay.dk'
 };
 
-// Get the maximum seq
-scanpay.seq(null, options).then(res => {
-    console.log('Max seq: ' + JSON.stringify(res));
+// First test: Get the maximum seq
+scanpay.maxSeq(options).then(res => {
+    console.log('Max seq result: ' + JSON.stringify(res));
 }).catch(e => console.log(e));
 
-let dbseq = 6231; // Stored in the shop database.
 
-// Loop through all changes
-function applyChanges(seq) {
-    scanpay.seq(seq, options).then(res => {
-        for (let i of res.changes) {
-            console.log(JSON.stringify(i, null, 4));
-            // Apply some changes ... and update dbseq.
-            dbseq = i.id;
+
+// Second test: Apply changes since last seq call
+let dbseq = 5; // Stored in the shop database after last seq.
+async function applyChanges() {
+    // Loop through all changes
+    while (1) {
+        let res;
+        try {
+            res = await scanpay.seq(dbseq, options);
+        } catch (e) {
+            console.log(e);
+            return;
+        }
+        // Apply some changes ... and update dbseq after
+        for (let c of res.changes) {
+            console.log(JSON.stringify(c, null, 4));
+            console.log('Order #' + c.orderid + ' updated to revision ' + c.rev);
+        }
+        if (res.seq > dbseq) {
+            console.log('Updating seq to ' + res.seq);
+            dbseq = res.seq;
         }
 
-        if (res.changes.length > 0) {
-            return applyChanges(dbseq);
+        // Break when there are no more changes
+        if (res.changes.length === 0) {
+            console.log('Done applying changes, new seq is ' + dbseq);
+            return;
         }
-    }).catch(e => console.log(e));
+    }
 }
-applyChanges(dbseq);
+applyChanges();
 

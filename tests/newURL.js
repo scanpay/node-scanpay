@@ -1,7 +1,7 @@
 /*
     help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
 */
-const apikey = '65:kbzU74IUyXO3zeRauOX/YusRSuH5WNFvoVYFYAi4J8TA5hOOjxrgsSxdTylXQ2pa';
+const apikey = '1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W';
 const scanpay = require('../')(apikey);
 
 const options = {
