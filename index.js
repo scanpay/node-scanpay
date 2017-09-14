@@ -3,7 +3,7 @@
     help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
     Node >= v6.6.0
 */
-const version = 'nodejs-1.2.0';
+const version = 'nodejs-1.2.1';
 const https = require('https');
 const crypto = require('crypto');
 let apikey;
@@ -88,7 +88,7 @@ function newURL(data, opts) {
 
 function seq(seq, opts) {
     if (!Number.isInteger(seq)) {
-        throw new Error('seq argument must be integer')
+        throw new Error('seq argument must be integer');
     }
     const options = {
         hostname: 'api.scanpay.dk',
