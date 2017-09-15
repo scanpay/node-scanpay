@@ -32,13 +32,27 @@ function throwError(str) {
     throw new Error('invalid response from scanpay; ' + str);
 }
 
-function request(opts, data) {
+function request(path, opts={}, data=null) {
     return new Promise((resolve, reject) => {
-        const req = https.request(opts, (res) => {
+        const o = {
+            hostname: 'api.scanpay.dk',
+            path: path,
+            auth: apikey,
+            headers: {
+                'X-SDK': version + '/' + process.version
+            }
+        };
+        mergeObjs(o, opts);
+        if (data) {
+            o.body = JSON.stringify(data);
+            o.method = 'POST';
+            o.headers['Content-Length'] = Buffer.byteLength(o.body);
+        }
+
+        const req = https.request(o, (res) => {
             if (res.statusCode !== 200) {
                 return reject(res.statusMessage);
             }
-
             let body = '';
             res.on('data', (chunk) => body += chunk);
             res.on('end', () => {
@@ -57,28 +71,14 @@ function request(opts, data) {
 
         // handle connection throwErrorors of the req
         req.on('error', (e) => reject('connection failed: ' + e));
-
-        if (data) {
-            req.write(JSON.stringify(data));
-        }
+        if (data) { req.write(o.body); }
         req.end();
     });
 }
 
-function newURL(data, opts) {
-    const options = {
-        hostname: 'api.scanpay.dk',
-        path: '/v1/new',
-        method: 'POST',
-        auth: apikey,
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Scanpay-SDK': version
-        }
-    };
-    if (opts) { mergeObjs(options, opts); }
-
-    return request(options, data).then((o) => {
+function newURL(data, opts={}) {
+    return request('/v1/new', opts, data)
+    .then((o) => {
         if (!o.url || o.url.slice(0, 8) !== 'https://') {
             throwError('missing url');
         }
@@ -90,38 +90,17 @@ function seq(seq, opts) {
     if (!Number.isInteger(seq)) {
         throw new Error('seq argument must be integer');
     }
-    const options = {
-        hostname: 'api.scanpay.dk',
-        path: '/v1/seq/' + seq,
-        auth: apikey,
-        headers: {
-            'X-Scanpay-SDK': version
-        }
-    };
-    if (opts) { mergeObjs(options, opts); }
-
-    return request(options).then((o) => {
-        if (!Array.isArray(o.changes)) {
-            throwError('missing changes[]');
-        }
-        if (!Number.isInteger(o.seq)) {
-            throwError('missing seq');
-        }
+    return request('/v1/seq/' + seq, opts)
+    .then((o) => {
+        if (!Array.isArray(o.changes)) { throwError('missing changes[]'); }
+        if (!Number.isInteger(o.seq)) { throwError('missing seq'); }
         return o;
     });
 }
 
 function maxSeq(opts) {
-    const options = {
-        hostname: 'api.scanpay.dk',
-        path: '/v1/seq',
-        auth: apikey,
-        headers: {
-            'X-Scanpay-SDK': version
-        }
-    };
-    if (opts) { mergeObjs(options, opts); }
-    return request(options).then((o) => {
+    return request('/v1/seq', opts)
+    .then((o) => {
         if (!Number.isInteger(o.seq)) {
             throwError('missing seq');
         }
