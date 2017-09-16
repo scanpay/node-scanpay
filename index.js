@@ -3,7 +3,7 @@
     help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
     Node >= v6.6.0
 */
-const version = 'nodejs-1.2.1';
+const version = 'nodejs-1.2.2';
 const https = require('https');
 const crypto = require('crypto');
 let apikey;
@@ -29,16 +29,32 @@ function authMsg(msg, s2) {
 
 /*  throwError: Handle scanpay errors */
 function throwError(str) {
+    // TODO: Send report to scanpay
     throw new Error('invalid response from scanpay; ' + str);
 }
 
-function request(opts, data) {
+/*  request: fetch-like HTTP request function */
+function request(path, opts={}, data=null) {
     return new Promise((resolve, reject) => {
-        const req = https.request(opts, (res) => {
+        const o = {
+            hostname: 'api.scanpay.dk',
+            path: path,
+            auth: apikey,
+            headers: {
+                'X-SDK': version + '/' + process.version
+            }
+        };
+        mergeObjs(o, opts);
+        if (data) {
+            o.body = JSON.stringify(data);
+            o.method = 'POST';
+            o.headers['Content-Length'] = Buffer.byteLength(o.body);
+        }
+
+        const req = https.request(o, (res) => {
             if (res.statusCode !== 200) {
                 return reject(res.statusMessage);
             }
-
             let body = '';
             res.on('data', (chunk) => body += chunk);
             res.on('end', () => {
@@ -57,28 +73,16 @@ function request(opts, data) {
 
         // handle connection throwErrorors of the req
         req.on('error', (e) => reject('connection failed: ' + e));
-
-        if (data) {
-            req.write(JSON.stringify(data));
-        }
+        if (data) { req.write(o.body); }
         req.end();
     });
 }
 
-function newURL(data, opts) {
-    const options = {
-        hostname: 'api.scanpay.dk',
-        path: '/v1/new',
-        method: 'POST',
-        auth: apikey,
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Scanpay-SDK': version
-        }
-    };
-    if (opts) { mergeObjs(options, opts); }
 
-    return request(options, data).then((o) => {
+/*  newURL: Create a new payment link */
+function newURL(data, opts) {
+    return request('/v1/new', opts, data)
+    .then((o) => {
         if (!o.url || o.url.slice(0, 8) !== 'https://') {
             throwError('missing url');
         }
@@ -86,42 +90,23 @@ function newURL(data, opts) {
     });
 }
 
+/*  seq: Get array of changes since $seq */
 function seq(seq, opts) {
     if (!Number.isInteger(seq)) {
         throw new Error('seq argument must be integer');
     }
-    const options = {
-        hostname: 'api.scanpay.dk',
-        path: '/v1/seq/' + seq,
-        auth: apikey,
-        headers: {
-            'X-Scanpay-SDK': version
-        }
-    };
-    if (opts) { mergeObjs(options, opts); }
-
-    return request(options).then((o) => {
-        if (!Array.isArray(o.changes)) {
-            throwError('missing changes[]');
-        }
-        if (!Number.isInteger(o.seq)) {
-            throwError('missing seq');
-        }
+    return request('/v1/seq/' + seq, opts)
+    .then((o) => {
+        if (!Array.isArray(o.changes)) { throwError('missing changes[]'); }
+        if (!Number.isInteger(o.seq)) { throwError('missing seq'); }
         return o;
     });
 }
 
+/*  maxSeq: Get maximum seq */
 function maxSeq(opts) {
-    const options = {
-        hostname: 'api.scanpay.dk',
-        path: '/v1/seq',
-        auth: apikey,
-        headers: {
-            'X-Scanpay-SDK': version
-        }
-    };
-    if (opts) { mergeObjs(options, opts); }
-    return request(options).then((o) => {
+    return request('/v1/seq', opts)
+    .then((o) => {
         if (!Number.isInteger(o.seq)) {
             throwError('missing seq');
         }
@@ -129,8 +114,9 @@ function maxSeq(opts) {
     });
 }
 
-function handlePing(msg, signature) {
-    if (!signature || !authMsg(msg, signature)) {
+/*  handlePing: Convert to JSON and validate data and integrity. */
+function handlePing(msg, signature='') {
+    if (!authMsg(msg, signature)) {
         throw 'invalid signature';
     }
     const o = JSON.parse(msg);
