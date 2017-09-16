@@ -3,7 +3,7 @@
     help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
     Node >= v6.6.0
 */
-const version = 'nodejs-1.2.1';
+const version = 'nodejs-1.2.2';
 const https = require('https');
 const crypto = require('crypto');
 let apikey;
