@@ -29,9 +29,11 @@ function authMsg(msg, s2) {
 
 /*  throwError: Handle scanpay errors */
 function throwError(str) {
+    // TODO: Send report to scanpay
     throw new Error('invalid response from scanpay; ' + str);
 }
 
+/*  request: fetch-like HTTP request function */
 function request(path, opts={}, data=null) {
     return new Promise((resolve, reject) => {
         const o = {
@@ -76,7 +78,9 @@ function request(path, opts={}, data=null) {
     });
 }
 
-function newURL(data, opts={}) {
+
+/*  newURL: Create a new payment link */
+function newURL(data, opts) {
     return request('/v1/new', opts, data)
     .then((o) => {
         if (!o.url || o.url.slice(0, 8) !== 'https://') {
@@ -86,6 +90,7 @@ function newURL(data, opts={}) {
     });
 }
 
+/*  seq: Get array of changes since $seq */
 function seq(seq, opts) {
     if (!Number.isInteger(seq)) {
         throw new Error('seq argument must be integer');
@@ -98,6 +103,7 @@ function seq(seq, opts) {
     });
 }
 
+/*  maxSeq: Get maximum seq */
 function maxSeq(opts) {
     return request('/v1/seq', opts)
     .then((o) => {
@@ -108,8 +114,9 @@ function maxSeq(opts) {
     });
 }
 
-function handlePing(msg, signature) {
-    if (!signature || !authMsg(msg, signature)) {
+/*  handlePing: Convert to JSON and validate data and integrity. */
+function handlePing(msg, signature='') {
+    if (!authMsg(msg, signature)) {
         throw 'invalid signature';
     }
     const o = JSON.parse(msg);
