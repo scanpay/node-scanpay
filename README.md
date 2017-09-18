@@ -25,7 +25,7 @@ All methods, except `handlePing`, are async and will return a promise or throw a
 
 #### newURL(Object, Object) => String
 
-To create a payment link you have to pass the order details ([spec](https://docs.scanpay.dk/payment-link#request-fields)) through `newURL`:
+Create a payment link by passing the order details ([spec](https://docs.scanpay.dk/payment-link#request-fields)) through `newURL`:
 
 ```js
 const order = {
@@ -40,16 +40,20 @@ scanpay.newURL(order, options).then(url => console.log(url));
 
 #### seq(Int, Object) => Object
 
-To get an array of changes since a specified sequence number:
+Get an array with a number of changes since the supplied sequence number argument:
 
 ```js
 const localSeq = 921; // A counter stored in your database.
-scanpay.seq(localSeq, options).then(obj => console.log(obj.changes));
+scanpay.seq(localSeq, options).then(obj => {
+	console.log('Changes:');
+	console.log(obj.changes);
+	console.log('New seq after applying all the changes: ' + obj.seq);
+});
 ```
 
 #### maxSeq(Object) => Integer
 
-To get the maximum sequence number:
+Get the current maximum sequence number:
 
 ```js
 scanpay.maxSeq(options).then(int => console.log(int));
@@ -61,6 +65,7 @@ Securely and efficiently validate pings. This method return a JSON object:
 
 ```js
 const json = scanpay.handlePing(body, req.headers['x-signature']);
+console.log(json.seq);
 ```
 
 
