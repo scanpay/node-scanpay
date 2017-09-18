@@ -1,6 +1,6 @@
 # Scanpay node.js client
 
-This is a Node.js client library for the Scanpay API. You can find the documentation at [docs.scanpay.dk](https://docs.scanpay.dk/). You can create a free account at [scanpay.dk/opret](https://scanpay.dk/signup).
+This is a Node.js client library for the Scanpay API. You can find the documentation at [docs.scanpay.dk](https://docs.scanpay.dk/). You can create a free account at [en.scanpay.dk/signup](https://en.scanpay.dk/signup).
 
 ## Installation
 
