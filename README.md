@@ -1,31 +1,72 @@
 # Scanpay node.js client
 
-This is a Node.js (>=v6.6) client library for the Scanpay API. You can find the documentation at [docs.scanpay.dk](https://docs.scanpay.dk/).
+This is a Node.js client library for the Scanpay API. You can find the documentation at [docs.scanpay.dk](https://docs.scanpay.dk/). You can create a free account at [scanpay.dk/opret](https://scanpay.dk/signup).
 
 ## Installation
 
-```bash
-npm install scanpay
-```
+This package works with Node.js >= 6.6. Install the package with npm:
 
-To create a payment link all you need to do is:
+```bash
+npm install scanpay --save
+```
+and include it in your project.
 
 ```js
 const scanpay = require('scanpay')(' API key ');
+```
+
+## Methods
+
+All methods, except `handlePing`, are async and will return a promise or throw an error. All async methods accept optional per-request `options` for [https.request()](https://nodejs.org/api/http.html#http_http_request_options_callback). You can use this to:
+
+* Set the API key for this request ([example](https://github.com/scanpaydk/node-scanpay/blob/master/tests/newURL.js#L8))
+* Set HTTP headers, e.g. the highly recommended `X-Cardholder-IP` ([example](https://github.com/scanpaydk/node-scanpay/blob/master/tests/newURL.js#L11))
+* Change the hostname to use our test environment `api.test.scanpay.dk` ([example](https://github.com/scanpaydk/node-scanpay/blob/master/tests/newURL.js#L9))
+
+#### newURL(Object, Object) => String
+
+To create a payment link you have to pass the order details ([spec](https://docs.scanpay.dk/payment-link#request-fields)) through `newURL`:
+
+```js
 const order = {
     items: [{
         name: 'iPhone 6+',
-        quantity: 1,
-        price: '6000 DKK'
+        quantity: 2,
+        price: '6000 DKK'  // Total is 12000 DKK
     }]
 };
-
-scanpay.newURL(order).then(url => { console.log(url); });
+scanpay.newURL(order, options).then(url => console.log(url));
 ```
+
+#### seq(Int, Object) => Object
+
+To get an array of changes since a specified sequence number:
+
+```js
+const localSeq = 921; // A counter stored in your database.
+scanpay.seq(localSeq, options).then(obj => console.log(obj.changes));
+```
+
+#### maxSeq(Object) => Integer
+
+To get the maximum sequence number:
+
+```js
+scanpay.maxSeq(options).then(int => console.log(int));
+```
+
+#### handlePing(String, String)
+
+Securely and efficiently validate pings. This method return a JSON object:
+
+```js
+const json = scanpay.handlePing(body, req.headers['x-signature']);
+```
+
 
 ## Compatibility table
 
-Nodejs compatibility table.
+Nodejs compatibility table for this library.
 
 | Feature                           | Version |
 | :-------------------------------- | :-----: |
@@ -36,12 +77,8 @@ Nodejs compatibility table.
 | Buffer.from                       | 5.10    |
 | Let and Const                     | 4.0     |
 | Object literal ext.               | 4.0     |
-| Number.isInteger                  | 0.12.18 |
-| Promises                          | 0.12    |
-| https.request                     | 0.3.6   |
-| crypto.createHmac                 | 0.1.94  |
+
 
 ## License
 
 Everything in this repository is licensed under the [MIT license](LICENSE).
-
