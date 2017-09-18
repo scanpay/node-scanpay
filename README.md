@@ -45,9 +45,8 @@ Get an array with a number of changes since the supplied sequence number argumen
 ```js
 const localSeq = 921; // A counter stored in your database.
 scanpay.seq(localSeq, options).then(obj => {
-	console.log('Changes:');
-	console.log(obj.changes);
-	console.log('New seq after applying all the changes: ' + obj.seq);
+    console.log(obj.changes);
+    console.log('New local seq after applying all changes: ' + obj.seq);
 });
 ```
 
