@@ -3,14 +3,14 @@
     help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
     Node >= v6.6.0
 */
-const version = 'nodejs-1.2.2';
+const version = 'nodejs-1.2.3';
 const https = require('https');
 const crypto = require('crypto');
 let apikey;
 
 /*  mergeObjs: Copy all properties of obj2 to obj1 */
 function mergeObjs(obj1, obj2) {
-    for (let o in obj2) {
+    for (const o in obj2) {
         if (typeof obj2[o] === 'object') {
             mergeObjs(obj1[o], obj2[o]);
         } else {
@@ -56,7 +56,7 @@ function request(path, opts={}, data=null) {
                 return reject(res.statusMessage);
             }
             let body = '';
-            res.on('data', (chunk) => body += chunk);
+            res.on('data', chunk => body += chunk);
             res.on('end', () => {
                 try {
                     resolve(JSON.parse(body));
@@ -72,7 +72,7 @@ function request(path, opts={}, data=null) {
         });
 
         // handle connection throwErrorors of the req
-        req.on('error', (e) => reject('connection failed: ' + e));
+        req.on('error', e => reject('connection failed: ' + e));
         if (data) { req.write(o.body); }
         req.end();
     });

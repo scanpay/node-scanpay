@@ -7,7 +7,7 @@ const http = require('http');
 
 const server = http.createServer((req, res) => {
     let body = '';
-    req.on('data', (chunk) => body += chunk);
+    req.on('data', chunk => body += chunk);
     req.on('end', () => {
         try {
             const json = scanpay.handlePing(body, req.headers['x-signature']);

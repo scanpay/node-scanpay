@@ -9,11 +9,9 @@ const options = {
 };
 
 // First test: Get the maximum seq
-scanpay.maxSeq(options).then(res => {
+scanpay.maxSeq(options).then((res) => {
     console.log('Max seq result: ' + JSON.stringify(res));
 }).catch(e => console.log(e));
-
-
 
 // Second test: Apply changes since last seq call
 let dbseq = 5; // Stored in the shop database after last seq.
@@ -28,9 +26,9 @@ async function applyChanges() {
             return;
         }
         // Apply some changes ... and update dbseq after
-        for (let c of res.changes) {
-            console.log(JSON.stringify(c, null, 4));
-            console.log('Order #' + c.orderid + ' updated to revision ' + c.rev);
+        for (const change of res.changes) {
+            console.log(JSON.stringify(change, null, 4));
+            console.log('#' + change.orderid + ' updated to revision ' + change.rev);
         }
         if (res.seq > dbseq) {
             console.log('Updating seq to ' + res.seq);
