@@ -2,6 +2,14 @@
 
 This is a Node.js client library for the Scanpay API. You can find the documentation at [docs.scanpay.dk](https://docs.scanpay.dk/). You can create a free account at [en.scanpay.dk/signup](https://en.scanpay.dk/signup).
 
+#### IRC or Slack?
+
+Do you have any questions? You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk), but why not join us on:
+
+* #scanpay on Freenode ([webchat](https://webchat.freenode.net?randomnick=1&channels=scanpay&prompt=1))
+* irc.scanpay.dk:6697
+* [Slack](https://scanpay.dk/slack)
+
 ## Installation
 
 This package works with Node.js >= 6.6. Install the package with npm:
@@ -60,13 +68,16 @@ scanpay.maxSeq(options).then(int => console.log(int));
 
 #### handlePing(String, String)
 
-Securely and efficiently validate pings. This method return a JSON object:
+Securely and efficiently validate pings. This method accepts two arguments: the HTTP message body and the HTTP X-Signature header. The return value is a JSON object:
 
 ```js
-const json = scanpay.handlePing(body, req.headers['x-signature']);
-console.log(json.seq);
+try {
+    const json = scanpay.handlePing(body, req.headers['x-signature']);
+    console.log('Received ping:\n' + JSON.stringify(json, null, 4) + '\n');
+} catch (e) {
+    console.log(e);
+}
 ```
-
 
 ## Compatibility table
 
