@@ -17,7 +17,7 @@ const scanpay = require('scanpay')('API key');
 
 ### Manual installation
 
-Download the [latest release](releases) and include in into your project:
+Download the [latest release](https://github.com/scanpaydk/node-scanpay/releases) and include in into your project:
 
 ```js
 const scanpay = require('lib/scanpay.js')('API key');
