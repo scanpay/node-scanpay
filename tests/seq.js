@@ -1,5 +1,5 @@
 /*
-    help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
+    help@scanpay.dk || irc.scanpay.dk:6697 || Freenode #scanpay
 */
 const apikey = '1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W';
 const scanpay = require('../')(apikey);
@@ -7,11 +7,6 @@ const scanpay = require('../')(apikey);
 const options = {
     hostname: 'api.test.scanpay.dk'
 };
-
-// First test: Get the maximum seq
-scanpay.maxSeq(options).then((res) => {
-    console.log('Max seq result: ' + JSON.stringify(res));
-}).catch(e => console.log(e));
 
 // Second test: Apply changes since last seq call
 let dbseq = 5; // Stored in the shop database after last seq.

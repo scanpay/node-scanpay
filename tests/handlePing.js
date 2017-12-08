@@ -1,7 +1,7 @@
 /*
-    help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
+    help@scanpay.dk || irc.scanpay.dk:6697 || Freenode #scanpay
 */
-const apikey = 'API KEY';
+const apikey = '1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W';
 const scanpay = require('../')(apikey);
 const http = require('http');
 

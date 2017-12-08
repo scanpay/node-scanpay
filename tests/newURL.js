@@ -1,5 +1,5 @@
 /*
-    help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
+    help@scanpay.dk || irc.scanpay.dk:6697 || Freenode #scanpay
 */
 const apikey = '1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W';
 const scanpay = require('../')(apikey);
@@ -20,14 +20,14 @@ const order = {
         {
             name: 'Pink Floyd: The Dark Side Of The Moon',
             quantity: 2,
-            price: '99.99 DKK',
-            sku: 'fadf23'
+            sku: 'abc123',
+            total: '200 DKK'
         },
         {
-            name: '巨人宏偉的帽子',
-            quantity: 2,
-            price: '420 DKK',
-            sku: '124'
+            name: '핑크 플로이드: 달의 어두운면',
+            quantity: 3,
+            sku: '宏123',
+            total: '300 DKK'
         }
     ],
     billing: {
