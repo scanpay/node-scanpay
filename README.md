@@ -4,12 +4,12 @@ Node.js client library for the Scanpay API. You can always e-mail us at [help@sc
 
 ## Installation
 
-This package works with Node.js >= 6.6. Install the package with [npm](https://www.npmjs.com/package/scanpay):
+This package works with Node.js >= 6.6. You can install the package with [npm](https://www.npmjs.com/package/scanpay):
 
 ```bash
 npm install scanpay --save
 ```
-and include it in your project.
+You can then include it in your project with:
 
 ```js
 const scanpay = require('scanpay')('API key');
@@ -17,19 +17,19 @@ const scanpay = require('scanpay')('API key');
 
 ### Manual installation
 
-Download the [latest release](https://github.com/scanpaydk/node-scanpay/releases) and include in into your project:
+If you do not wish to use npm, you can download the [latest release](https://github.com/scanpaydk/node-scanpay/releases) and include in into your project:
 
 ```js
 const scanpay = require('lib/scanpay.js')('API key');
 ```
 
-## Methods
+## Usage
 
-All methods, except `handlePing`, will return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Note that some methods accept an optional per-request [`options`](#options) object.
+The API documentation is available [here](https://docs.scanpay.dk/). All methods, except `handlePing`, will return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Most methods accept an optional per-request object with [options](#options), here referred to as `options`.
 
-### newURL(Object, options) => String
+#### newURL(Object, options) => String
 
-Create a [payment link](https://docs.scanpay.dk/payment-link#request-fields) by passing the order details through `newURL`. Strictly speaking, only the following data is required, but we strongly encourage you to use the entire spec ([example](tests/newURL.js)).
+Create a link to our hosted payment window ([docs](https://docs.scanpay.dk/payment-link)).
 
 ```js
 const order = {
@@ -40,25 +40,25 @@ scanpay.newURL(order, options)
     .catch(err => { /* handle errors */ });
 ```
 
-### handlePing(String, String)
+#### seq(Int, options) => Object
 
-Securely and efficiently validate [pings](https://docs.scanpay.dk/synchronization). This method accepts two arguments from the received ping request, the HTTP message body and the `X-Signature` HTTP header. The return value is a JSON object ([example](tests/handlePing.js)).
-
-```js
-try {
-    const json = scanpay.handlePing(body, req.headers['x-signature']);
-} catch (e) { /* handle errors */ }
-```
-
-### seq(Int, options) => Object
-
-Make a [sequence request](https://docs.scanpay.dk/synchronization#seq-request) to get an object with a number of changes since the supplied sequence number ([example](tests/seq.js)).
+Make a sequence request to pull changes from the server ([docs](https://docs.scanpay.dk/synchronization#sequence-request)).
 
 ```js
 const localSeq = 921;
 scanpay.seq(localSeq, options)
     .then(obj => console.log(obj.changes))
     .catch(err => { /* handle errors */ });
+```
+
+#### handlePing(String, String)
+
+Handle and validate synchronization pings ([docs](https://docs.scanpay.dk/synchronization#ping-service)). This method accepts two arguments, the HTTP message body and the `X-Signature` HTTP header. The return value is a JSON object ([example](tests/handlePing.js)).
+
+```js
+try {
+    const json = scanpay.handlePing(body, req.headers['x-signature']);
+} catch (e) { /* handle errors */ }
 ```
 
 ## Options
