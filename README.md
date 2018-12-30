@@ -29,7 +29,7 @@ The API documentation is available [here](https://docs.scanpay.dk/). All methods
 
 #### newURL(Object, options) => String
 
-Create a link to our hosted payment window ([docs](https://docs.scanpay.dk/payment-link)).
+Create a link to our hosted payment window ([docs](https://docs.scanpay.dk/payment-link) \| [example](tests/newURL.js)).
 
 ```js
 const order = {
@@ -42,7 +42,7 @@ scanpay.newURL(order, options)
 
 #### seq(Int, options) => Object
 
-Make a sequence request to pull changes from the server ([docs](https://docs.scanpay.dk/synchronization#sequence-request)).
+Make a sequence request to pull changes from the server ([docs](https://docs.scanpay.dk/synchronization#sequence-request) \| [example](tests/seq.js)).
 
 ```js
 const localSeq = 921;
@@ -53,7 +53,8 @@ scanpay.seq(localSeq, options)
 
 #### handlePing(String, String)
 
-Handle and validate synchronization pings ([docs](https://docs.scanpay.dk/synchronization#ping-service)). This method accepts two arguments, the HTTP message body and the `X-Signature` HTTP header. The return value is a JSON object ([example](tests/handlePing.js)).
+Handle and validate synchronization pings.
+The method accepts two arguments, the body of the received ping and the `X-Signature` HTTP header. The method returns an object ([docs](https://docs.scanpay.dk/synchronization#ping-service) \| [example](tests/handlePing.js)).
 
 ```js
 try {
