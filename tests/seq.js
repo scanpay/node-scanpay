@@ -23,7 +23,16 @@ async function applyChanges() {
         // Apply some changes ... and update dbseq after
         for (const change of res.changes) {
             console.log(JSON.stringify(change, null, 4));
-            console.log('#' + change.orderid + ' updated to revision ' + change.rev);
+            switch (change.type) {
+                case 'transaction':
+                /* fallthrough */
+                case 'charge':
+                    console.log('order #' + change.orderid + ' updated to revision ' + change.rev);
+                    break;
+                case 'subscriber':
+                    console.log('subscriber #' + change.ref + ' updated to revision ' + change.rev);
+                    break;
+            }
         }
         if (res.seq > dbseq) {
             console.log('Updating seq to ' + res.seq);
