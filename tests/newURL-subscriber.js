@@ -15,7 +15,7 @@ const options = {
 const subscriber = {
     orderid: 'a766409',
     language: 'da',
-    successurl: 'http://blixen.dk/success',
+    successurl: 'https://blixen.dk/',
     subscriber: {
         ref: 'sub123',
     },

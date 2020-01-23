@@ -15,7 +15,7 @@ const options = {
 
 const data = {
     language: 'da',
-    successurl: 'http://blixen.dk/success',
+    successurl: 'https://blixen.dk/',
     billing: {
         name: 'John Doe',
         company: 'The Shop A/S',

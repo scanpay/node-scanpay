@@ -15,7 +15,7 @@ const options = {
 const order = {
     orderid: 'a766409',
     language: 'da',
-    successurl: 'http://blixen.dk/success',
+    successurl: 'https://blixen.dk/',
     items: [
         {
             name: 'Pink Floyd: The Dark Side Of The Moon',
