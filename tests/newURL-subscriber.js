@@ -47,7 +47,7 @@ const subscriber = {
 };
 
 scanpay.newURL(subscriber, options).then((url) => {
-    console.log('newURL: ' + url);
+    console.log('newURL-subscriber: ' + url);
 }, (err) => {
     console.log(err);
 });

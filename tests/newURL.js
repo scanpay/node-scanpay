@@ -24,9 +24,9 @@ const order = {
             total: '200 DKK'
         },
         {
-            name: '핑크 플로이드: 달의 어두운면',
+            name: 'Æblekage',
             quantity: 3,
-            sku: '宏123',
+            sku: '123',
             total: '300 DKK'
         }
     ],
@@ -58,7 +58,7 @@ const order = {
 };
 
 scanpay.newURL(order, options).then((url) => {
-    console.log('newURL subscriber: ' + url);
+    console.log('newURL: ' + url);
 }, (err) => {
     console.log(err);
 });
