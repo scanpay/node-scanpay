@@ -85,7 +85,7 @@ const order = {
     items: [{ total: '6000 DKK' }]
 };
 scanpay.charge(subscriberid, order, options)
-    .then(res => console.log(res));
+    .then(res => console.log(res))
     .catch(err => { /* handle errors */ });
 ```
 
