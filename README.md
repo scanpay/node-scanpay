@@ -1,6 +1,6 @@
 # Scanpay node.js client
 
-Node.js client library for the Scanpay API. You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk) or chat with us on IRC at Freenode `#scanpay` ([webchat](https://webchat.freenode.net?randomnick=1&channels=scanpay&prompt=1)).
+Node.js client library for the Scanpay API ([docs](https://docs.scanpay.dk)). You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk) or chat with us on IRC at Freenode `#scanpay` ([webchat](https://webchat.freenode.net?randomnick=1&channels=scanpay&prompt=1)).
 
 ## Installation
 
