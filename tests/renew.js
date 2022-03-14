@@ -1,5 +1,7 @@
 /*
-    help@scanpay.dk || irc.scanpay.dk:6697 || scanpay.dk/slack
+    Scanpay Node.js client library (Node >= v6.6.0)
+    Docs: https://docs.scanpay.dk/
+    help@scanpay.dk || irc.libera.chat:6697 #scanpay
 */
 const apikey = '1089:bx2a4DATi8ad87Nm4uaxg5nggYA8J/Hv99CON977YiEdvYa6DmMwdoRPoYWyBJSi';
 const scanpay = require('../')(apikey);
