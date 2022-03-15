@@ -12,7 +12,7 @@
   "main": "lib/scanpay.js",
   "files": [
     "lib/scanpay.js",
-    "lib/error.js"
+    "lib/errors.js"
   ],
   "repository": {
     "type": "git",
