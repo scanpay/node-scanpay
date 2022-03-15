@@ -3,15 +3,17 @@
     Docs: https://docs.scanpay.dk/
     help@scanpay.dk || irc.libera.chat:6697 #scanpay
 */
+
 const apikey = '1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W';
 const scanpay = require('../')(apikey);
 
 const options = {
-    hostname: 'api.test.scanpay.dk'
+    hostname: 'api.test.scanpay.dk',
+    debug: true
 };
 
 // Second test: Apply changes since last seq call
-let dbseq = 5; // Stored in the shop database after last seq.
+let dbseq = 800; // Stored in the shop database after last seq.
 async function applyChanges() {
     // Loop through all changes
     while (1) {

@@ -3,35 +3,25 @@
     Docs: https://docs.scanpay.dk/
     help@scanpay.dk || irc.libera.chat:6697 #scanpay
 */
+
 const apikey = '1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W';
 const scanpay = require('../')(apikey);
 
 const options = {
-    auth: apikey, // Set an API key for this request (optional)
     hostname: 'api.test.scanpay.dk',
     headers: {
         'X-Cardholder-IP': '189.127.159.146' // Customer IP address
-    }
+    },
+    debug: true
 };
 
-const order = {
+const data = {
     orderid: 'a766409',
     language: 'da',
     successurl: 'https://blixen.dk/',
-    items: [
-        {
-            name: 'Pink Floyd: The Dark Side Of The Moon',
-            quantity: 2,
-            sku: 'abc123',
-            total: '200 DKK'
-        },
-        {
-            name: 'Æblekage',
-            quantity: 3,
-            sku: '123',
-            total: '300 DKK'
-        }
-    ],
+    subscriber: {
+        ref: 'sub1234'
+    },
     billing: {
         name: 'John Doe',
         company: 'The Shop A/S',
@@ -59,8 +49,10 @@ const order = {
     }
 };
 
-scanpay.newURL(order, options).then((url) => {
-    console.log('newURL: ' + url);
-}, (err) => {
-    console.log(err);
-});
+
+scanpay.subscriptionLink(data, options)
+    .then((url) => {
+        console.log('Subscription link: ' + url);
+    }).catch((err) => {
+        console.log(err)
+    });

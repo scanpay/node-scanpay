@@ -3,15 +3,14 @@
     Docs: https://docs.scanpay.dk/
     help@scanpay.dk || irc.libera.chat:6697 #scanpay
 */
-const apikey = '1089:bx2a4DATi8ad87Nm4uaxg5nggYA8J/Hv99CON977YiEdvYa6DmMwdoRPoYWyBJSi';
+
+const apikey = '1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W';
 const scanpay = require('../')(apikey);
 
-const subscriberid = 5;
 const options = {
-    auth: apikey, // Set an API key for this request (optional)
     hostname: 'api.test.scanpay.dk',
     headers: {
-        'X-Cardholder-IP': '189.127.159.146' // Customer IP address
+        'X-Cardholder-IP': '189.127.159.146' // Customer IP address (recommended)
     }
 };
 
@@ -44,7 +43,8 @@ const data = {
     }
 };
 
-scanpay.renew(subscriberid, data, options).then((url) => {
+const subscriberID = 68;
+scanpay.renew(subscriberID, data, options).then((url) => {
     console.log('Subscriber renewal URL: ' + url);
 }, (err) => {
     console.log(err);
