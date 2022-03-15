@@ -75,7 +75,7 @@ try {
 } catch (e) { /* handle errors */ }
 ```
 
-#### charge(Int, Object, Object) => String
+#### charge(Integer, Object, Object) => String
 
 Charge an amount from an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/charge-subscriber) \| [example](tests/charge.js)):
 
@@ -89,7 +89,7 @@ scanpay.charge(subscriberID, order, options)
     .catch(err => { /* handle errors */ });
 ```
 
-#### renew(Int, Object, Object) => String
+#### renew(Integer, Object, Object) => String
 
 Renew the payment method for an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/renew-subscriber) \| [example](tests/renew.js)):
 
@@ -104,9 +104,11 @@ scanpay.renew(subscriberID, order, options)
 
 All methods, except `handlePing`, accept an optional per-request `options` object. You can use it to:
 
-* Set the API key for this request ([example](tests/newURL.js#L8))
-* Set HTTP headers, e.g. the highly recommended `X-Cardholder-IP` ([example](tests/newURL.js#L11))
-* Change the hostname to use our test environment `api.test.scanpay.dk` ([example](tests/newURL.js#L9))
+* Change the hostname to use our test environment `api.test.scanpay.dk` ([example](tests/options.js#L12))
+* Set the API key for this request ([example](tests/options.js#L15))
+* Set HTTP headers, e.g. the highly recommended `X-Cardholder-IP` ([example](tests/options.js#L18-L20))
+* Set `debug` flag ([example](tests/options.js#L23))
+
 
 ## Compatibility table
 

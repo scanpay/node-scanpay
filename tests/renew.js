@@ -11,7 +11,8 @@ const options = {
     hostname: 'api.test.scanpay.dk',
     headers: {
         'X-Cardholder-IP': '189.127.159.146' // Customer IP address (recommended)
-    }
+    },
+    debug: true
 };
 
 const data = {
