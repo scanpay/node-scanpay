@@ -50,9 +50,18 @@ const data = {
 };
 
 
-scanpay.subscriptionLink(data, options)
-    .then((url) => {
-        console.log('Subscription link: ' + url);
-    }).catch((err) => {
-        console.log(err)
-    });
+(async () => {
+    await scanpay.subscriptionLink(data, options)
+        .then(url => console.log('Subscription link: ' + url))
+        .catch(err => console.log(err));
+
+    // Absolute minimal (not recommended)
+    await scanpay.subscriptionLink({
+        subscriber: {
+            ref: '5'
+        }, options
+    })
+        .then(url => console.log('Subscription link: ' + url))
+        .catch(err => console.log(err));
+
+})();

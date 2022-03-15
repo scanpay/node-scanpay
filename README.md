@@ -27,20 +27,33 @@ const scanpay = require('lib/scanpay.js')('API key');
 
 The API documentation is available [here](https://docs.scanpay.dk/). All methods, except `handlePing`, will return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Most methods accept an optional per-request object with [options](#options), here referred to as `options`.
 
-#### newURL(Object, options) => String
+#### paymentLink(Object, options) => Promise
 
-Create a link to our hosted payment window ([docs](https://docs.scanpay.dk/payment-link) \| [example](tests/newURL.js)).
+Create a link to our hosted payment window ([docs](https://docs.scanpay.dk/payment-link) \| [example](tests/paymentLink.js)).
 
 ```js
 const order = {
     items: [{ total: '6000 DKK' }]
 };
-scanpay.newURL(order, options)
+scanpay.paymentLink(order, options)
     .then(url => console.log(url))
     .catch(err => { /* handle errors */ });
 ```
 
-#### seq(Int, options) => Object
+#### subscriptionLink(Object, options) => Promise
+
+Create a link to our hosted payment window to create a new subscriber ([docs](https://docs.scanpay.dk/subscriptions/create-subscriber) \| [example](tests/subscriptionLink.js)).
+
+```js
+const order = {
+    subscriber: { ref: '5' }
+};
+scanpay.subscriptionLink(order, options)
+    .then(url => console.log(url))
+    .catch(err => { /* handle errors */ });
+```
+
+#### seq(Integer, options) => Object
 
 Make a sequence request to pull changes from the server ([docs](https://docs.scanpay.dk/synchronization#sequence-request) \| [example](tests/seq.js)).
 
@@ -62,29 +75,16 @@ try {
 } catch (e) { /* handle errors */ }
 ```
 
-#### New subscriber - newURL(Object, options) => String
-
-Create a link to our hosted payment window to create a new subscriber ([docs](https://docs.scanpay.dk/subscriptions/create-subscriber) \| [example](tests/newURL-subscriber.js)).
-
-```js
-const order = {
-    subscriber: { ref: '5' }
-};
-scanpay.newURL(order, options)
-    .then(url => console.log(url))
-    .catch(err => { /* handle errors */ });
-```
-
 #### charge(Int, Object, Object) => String
 
 Charge an amount from an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/charge-subscriber) \| [example](tests/charge.js)):
 
 ```js
-const subscriberid = 5;
+const subscriberID = 5;
 const order = {
     items: [{ total: '6000 DKK' }]
 };
-scanpay.charge(subscriberid, order, options)
+scanpay.charge(subscriberID, order, options)
     .then(res => console.log(res))
     .catch(err => { /* handle errors */ });
 ```
@@ -94,8 +94,8 @@ scanpay.charge(subscriberid, order, options)
 Renew the payment method for an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/renew-subscriber) \| [example](tests/renew.js)):
 
 ```js
-const subscriberid = 5;
-scanpay.renew(subscriberid, {}, options)
+const subscriberID = 5;
+scanpay.renew(subscriberID, order, options)
     .then(url => console.log(url))
     .catch(err => { /* handle errors */ });
 ```

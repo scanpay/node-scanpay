@@ -71,7 +71,7 @@ const data = {
         });
 
 
-    // Absolute minimum (not recommended)
+    // Absolute minimal (not recommended)
     await scanpay.paymentLink({
         items: [{
             total: '200 DKK'
