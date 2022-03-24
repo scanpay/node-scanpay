@@ -87,6 +87,31 @@ const order = {
 scanpay.charge(subscriberID, order, options)
     .then(res => console.log(res))
     .catch(err => { /* handle errors */ });
+
+// TODO ...
+scanpay.subscriber.create(order, options)
+scanpay.subscriber.renew(subscriberID, order, options)
+scanpay.subscriber.charge(subscriberID, order, options)
+```
+
+#### capture(Integer, Object, Object) => String
+
+Capture a transaction.
+
+```js
+const amount = {
+    "total": "199.95 DKK",
+    "index": 0 // Sequence number for this transaction.
+}
+scanpay.capture(1337, amount)
+    .then(res => console.log(res))
+    .catch(err => { /* handle errors */ });
+
+// TODO ... ???
+scanpay.transaction.create(order, options)
+scanpay.transaction.capture(1337, amount)
+scanpay.transaction.refund(1337, amount)
+scanpay.transaction.void(1337)
 ```
 
 #### renew(Integer, Object, Object) => String
@@ -100,7 +125,7 @@ scanpay.renew(subscriberID, order, options)
     .catch(err => { /* handle errors */ });
 ```
 
-## Options
+### Options
 
 All methods, except `handlePing`, accept an optional per-request `options` object. You can use it to:
 
@@ -109,6 +134,34 @@ All methods, except `handlePing`, accept an optional per-request `options` objec
 * Set HTTP headers, e.g. the highly recommended `X-Cardholder-IP` ([example](tests/options.js#L18-L20))
 * Set `debug` flag ([example](tests/options.js#L23))
 
+
+## Idempotency
+TODO... describe in detail.
+
+
+## Error handling
+
+Our API is forgiving, and so is this client library. We will only throw if you do not comply with the types described in this document. Otherwise, errors will be rejected in the returned promise. The error object you receive will have one of the following types:
+
+```js
+switch (err.type) {
+  case 'ScanpayInvalidRequestError':
+    // Invalid parameters were supplied to Scanpay's API
+    break;
+  case 'ScanpayAPIError':
+    // An error occurred internally with Scanpay's API
+    break;
+  case 'ScanpayConnectionError':
+    // Some kind of error occurred during the HTTPS communication
+    break;
+  case 'ScanpayAuthenticationError':
+    // You probably used an incorrect API key
+    break;
+  case 'ScanpayRateLimitError':
+    // Too many requests hit the API too quickly
+    break;
+}
+```
 
 ## Compatibility table
 
