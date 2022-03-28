@@ -24,36 +24,120 @@ const scanpay = require('lib/scanpay.js')('API key');
 ```
 
 ## Usage
+The API documentation is available [here](https://docs.scanpay.dk/). All methods, except `handlePing`, will return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). All methods accept an optional [options](#options) object, herein referred to as `options`.
 
-The API documentation is available [here](https://docs.scanpay.dk/). All methods, except `handlePing`, will return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Most methods accept an optional per-request object with [options](#options), here referred to as `options`.
 
-#### paymentLink(Object, options) => Promise
-
-Create a link to our hosted payment window ([docs](https://docs.scanpay.dk/payment-link) \| [example](tests/paymentLink.js)).
+#### paylink.create(object, options)
+Create a link to our hosted payment window, where the customer can enter their payment details, e.g. cardnumber. ([docs](https://docs.scanpay.dk/payment-link) \| [example](tests/paymentLink.js)).
 
 ```js
-const order = {
-    items: [{ total: '6000 DKK' }]
-};
-scanpay.paymentLink(order, options)
-    .then(url => console.log(url))
-    .catch(err => { /* handle errors */ });
+scanpay.paylink.create({
+        orderid: 'inv--001',
+        items: [{
+            name: 'iPhone',
+            total: '6995.95 DKK'
+        }]
+    })
+    .then(res => console.log(res.url))
+    .catch(err => console.error(err));
 ```
 
-#### subscriptionLink(Object, options) => Promise
+#### paylink.delete(string, options)
+Delete a payment link. **Not implemented yet; ETA: 2022-07**
 
+```js
+scanpay.paylink.delete('https://betal.scanpay.dk/ax18s0')
+    .then(res => console.log(res.url))
+    .catch(err => console.error(err));
+```
+
+### Transactions
+
+#### transaction.capture(integer, object, options)
+Fully or partially capture an authorized transaction.
+
+```js
+scanpay.transaction.capture(1337, {
+        amount: '6995.95 DKK',
+        index: 0
+    })
+    .then(res => console.log(res))
+    .catch(err => console.error(err));
+```
+
+#### transaction.refund(integer, object, options)
+Refund a captured amount from a transaction. **Not implemented yet; ETA: 2022-07**
+
+```js
+scanpay.transaction.refund(1337, {
+        amount: '6995.95 DKK',
+        index: 1
+    })
+    .then(res => console.log(res))
+    .catch(err => console.error(err));
+```
+
+#### transaction.void(integer, object, options)
+Void a transaction, i.e. release the authorization and cancel the transaction. **Not implemented yet; ETA: 2022-07**
+
+```js
+scanpay.transaction.void(1338)
+    .then(res => console.log(res))
+    .catch(err => console.error(err));
+```
+
+### Subscriptions
+
+#### subscriber.create(object, options)
 Create a link to our hosted payment window to create a new subscriber ([docs](https://docs.scanpay.dk/subscriptions/create-subscriber) \| [example](tests/subscriptionLink.js)).
 
 ```js
-const order = {
-    subscriber: { ref: '5' }
-};
-scanpay.subscriptionLink(order, options)
+scanpay.subscriber.create({
+        subscriber: { ref: 'customer8' }, // Your own reference
+        successurl: 'http://blixen.dk/success',
+        billing: { /* ... */}
+    })
     .then(url => console.log(url))
-    .catch(err => { /* handle errors */ });
+    .catch(err => console.error(err));
 ```
 
-#### seq(Integer, options) => Object
+#### subscriber.charge(integer, object, options)
+Charge an amount from an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/charge-subscriber) \| [example](tests/charge.js)):
+
+```js
+scanpay.subscriber.charge(5, {
+        orderid: "inv-2102",
+        items: [{
+            name: "flixNet subscription",
+            total: '299.95 DKK'
+        }]
+    })
+    .then(res => console.log(res))
+    .catch(err => console.error(err));
+```
+
+#### subscriber.renew(integer, object, options)
+Renew the payment method for an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/renew-subscriber) \| [example](tests/renew.js)):
+
+```js
+scanpay.subscriber.renew(5, {
+        successurl: 'http://blixen.dk/success'
+    })
+    .then(url => console.log(url))
+    .catch(err => console.error(err));
+```
+
+
+#### subscriber.delete(integer, options)
+Delete a subscriber. **Not implemented yet; ETA: 2022-07**
+
+```js
+scanpay.subscriber.delete(5)
+    .then(url => console.log(url))
+    .catch(err => console.error(err));
+```
+
+#### seq(integer, options)
 
 Make a sequence request to pull changes from the server ([docs](https://docs.scanpay.dk/synchronization#sequence-request) \| [example](tests/seq.js)).
 
@@ -61,10 +145,10 @@ Make a sequence request to pull changes from the server ([docs](https://docs.sca
 const localSeq = 921;
 scanpay.seq(localSeq, options)
     .then(obj => console.log(obj.changes))
-    .catch(err => { /* handle errors */ });
+    .catch(err => console.error(err));
 ```
 
-#### handlePing(String, String)
+#### handlePing(string, string)
 
 Handle and validate synchronization pings.
 The method accepts two arguments, the body of the received ping and the `X-Signature` HTTP header. The method returns an object ([docs](https://docs.scanpay.dk/synchronization#ping-service) \| [example](tests/handlePing.js)).
@@ -75,55 +159,8 @@ try {
 } catch (e) { /* handle errors */ }
 ```
 
-#### charge(Integer, Object, Object) => String
 
-Charge an amount from an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/charge-subscriber) \| [example](tests/charge.js)):
 
-```js
-const subscriberID = 5;
-const order = {
-    items: [{ total: '6000 DKK' }]
-};
-scanpay.charge(subscriberID, order, options)
-    .then(res => console.log(res))
-    .catch(err => { /* handle errors */ });
-
-// TODO ...
-scanpay.subscriber.create(order, options)
-scanpay.subscriber.renew(subscriberID, order, options)
-scanpay.subscriber.charge(subscriberID, order, options)
-```
-
-#### capture(Integer, Object, Object) => String
-
-Capture a transaction.
-
-```js
-const amount = {
-    "total": "199.95 DKK",
-    "index": 0 // Sequence number for this transaction.
-}
-scanpay.capture(1337, amount)
-    .then(res => console.log(res))
-    .catch(err => { /* handle errors */ });
-
-// TODO ... ???
-scanpay.transaction.create(order, options)
-scanpay.transaction.capture(1337, amount)
-scanpay.transaction.refund(1337, amount)
-scanpay.transaction.void(1337)
-```
-
-#### renew(Integer, Object, Object) => String
-
-Renew the payment method for an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/renew-subscriber) \| [example](tests/renew.js)):
-
-```js
-const subscriberID = 5;
-scanpay.renew(subscriberID, order, options)
-    .then(url => console.log(url))
-    .catch(err => { /* handle errors */ });
-```
 
 ### Options
 
