@@ -1,6 +1,6 @@
-# Scanpay node.js client
+# Scanpay Node.js library
 
-The official Node.js client library for the Scanpay API ([docs](https://docs.scanpay.dk)). You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk), or chat with us on IRC at libera.chat #scanpay
+The Scanpay Node.js library provides convenient and simplified access to the Scanpay API from applications written in server-side JavaScript (Node.js). The library is developed and maintained by Scanpay ApS in Denmark. You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk), or chat with us on IRC at libera.chat #scanpay ([webchat](https://web.libera.chat/#scanpay)).
 
 ## Installation
 
@@ -17,21 +17,20 @@ const scanpay = require('scanpay')('API key');
 
 ### Manual installation
 
-If you do not wish to use npm, you can download the [latest release](https://github.com/scanpaydk/node-scanpay/releases) and include in into your project:
+If you do not wish to use npm, you can download the [latest release](https://github.com/scanpaydk/node-scanpay/releases) and include it into your project:
 
 ```js
 const scanpay = require('lib/scanpay.js')('API key');
 ```
 
 ## Usage
-The API documentation is available [here](https://docs.scanpay.dk/). All methods, except `handlePing`, will return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). All methods accept an optional [options](#options) object, herein referred to as `options`.
+The API documentation is available at [docs.scanpay.dk](https://docs.scanpay.dk/). All methods return a chainable [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Programmer errors, e.g. [`TypeError`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError), will throw an exception, but all other errors are catchable with `Promise.catch()`. All methods accept an optional object called [`options`](#options).
 
-
-#### paylink.create(object, options)
-Create a link to our hosted payment window, where the customer can enter their payment details, e.g. cardnumber. ([docs](https://docs.scanpay.dk/payment-link) \| [example](tests/paymentLink.js)).
+#### paymentLink.create(object, options)
+Create a link to our hosted payment window, where the customer can enter their payment details, e.g. card number, to make a regular one-time purchase ([docs](https://docs.scanpay.dk/payment-link) \| [example](tests/paymentLink.js)). For subscriptions, or save-card functionality, use [`subscriber.create()`](#subscriptions).
 
 ```js
-scanpay.paylink.create({
+scanpay.paymentLink.create({
         orderid: 'inv--001',
         items: [{
             name: 'iPhone',
@@ -42,19 +41,20 @@ scanpay.paylink.create({
     .catch(err => console.error(err));
 ```
 
-#### paylink.delete(string, options)
+#### paymentLink.delete(string, options)
 Delete a payment link. **Not implemented yet; ETA: 2022-07**
 
 ```js
-scanpay.paylink.delete('https://betal.scanpay.dk/ax18s0')
+scanpay.paymentLink.delete('https://betal.scanpay.dk/ax18s0')
     .then(res => console.log(res.url))
     .catch(err => console.error(err));
 ```
 
 ### Transactions
+Transactions are created when payment links are paid or when you charge a subscriber. You can manage your transactions in our [dashboard](https://dashboard.scanpay.dk) and with the following methods:
 
 #### transaction.capture(integer, object, options)
-Fully or partially capture an authorized transaction.
+Fully or partially capture an authorized amount of a transaction. You need to include the transaction `index`, i.e. the number of captures and refunds on the transaction.
 
 ```js
 scanpay.transaction.capture(1337, {
@@ -87,82 +87,87 @@ scanpay.transaction.void(1338)
 ```
 
 ### Subscriptions
+You can use our [Subscriptions API](https://docs.scanpay.dk/subscriptions/) to charge customers on a recurring basis, e.g. monthly, or to tokenize customer payment details for future checkouts, so-called "one-click" checkouts.
 
 #### subscriber.create(object, options)
-Create a link to our hosted payment window to create a new subscriber ([docs](https://docs.scanpay.dk/subscriptions/create-subscriber) \| [example](tests/subscriptionLink.js)).
+Create a link to the payment window, where the customer can enter their payment details. The subscriber is created when the payment details have been saved. ([docs](https://docs.scanpay.dk/subscriptions/create-subscriber) \| [example](tests/subscriptionLink.js)).
 
 ```js
 scanpay.subscriber.create({
-        subscriber: { ref: 'customer8' }, // Your own reference
-        successurl: 'http://blixen.dk/success',
-        billing: { /* ... */}
+        subscriber: { ref: 'customer8' } // Your own reference
     })
-    .then(url => console.log(url))
+    .then(res => console.log(res.url))
     .catch(err => console.error(err));
 ```
 
 #### subscriber.charge(integer, object, options)
-Charge an amount from an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/charge-subscriber) \| [example](tests/charge.js)):
+Charge an amount from an existing subscriber. Charges are authorizations, so you have to capture the transaction afterwards or use auto-capture. Please use [idempotency](#idempotency) to prevent accidental charges. ([docs](https://docs.scanpay.dk/subscriptions/charge-subscriber) \| [example](tests/charge.js)):
 
 ```js
+const options = {
+    idempotency: db.invoices['inv-39'].idempotencyKey;
+};
 scanpay.subscriber.charge(5, {
-        orderid: "inv-2102",
+        orderid: 'inv-39',
         items: [{
-            name: "flixNet subscription",
+            name: 'flixNet subscription',
             total: '299.95 DKK'
         }]
-    })
+    }, options)
     .then(res => console.log(res))
     .catch(err => console.error(err));
 ```
 
 #### subscriber.renew(integer, object, options)
-Renew the payment method for an existing subscriber ([docs](https://docs.scanpay.dk/subscriptions/renew-subscriber) \| [example](tests/renew.js)):
+Create a link to the payment window, where the subscriber can renew or change their payment details. ([docs](https://docs.scanpay.dk/subscriptions/renew-subscriber) \| [example](tests/renew.js)):
 
 ```js
 scanpay.subscriber.renew(5, {
-        successurl: 'http://blixen.dk/success'
+        successurl: 'http://blixen.dk/card-renewed'
     })
-    .then(url => console.log(url))
+    .then(res => console.log(res.url))
     .catch(err => console.error(err));
 ```
-
 
 #### subscriber.delete(integer, options)
 Delete a subscriber. **Not implemented yet; ETA: 2022-07**
 
 ```js
 scanpay.subscriber.delete(5)
-    .then(url => console.log(url))
+    .then(() => console.log('subscriber deleted!'))
     .catch(err => console.error(err));
 ```
 
-#### seq(integer, options)
+### Synchronization
+Our synchronization paradigm *(“ping-pull”)* is a hybrid of push and pull. In short, we *ping* you with a sequence number, both periodically and after events. The sequence number is a counter that increases when your transaction data changes. When this happens, you pull the changes from our backend. Please read [the details](https://docs.scanpay.dk/synchronization) before you begin.
 
-Make a sequence request to pull changes from the server ([docs](https://docs.scanpay.dk/synchronization#sequence-request) \| [example](tests/seq.js)).
+#### sync.parsePing(string, string, options)
+Securely validate and parse the ping body with the corresponding `X-Signature` HTTP header. Authentic pings return a JSON object with your sequence number, `seq`, which you can use to determine if you are synchronized. ([docs](https://docs.scanpay.dk/synchronization#ping-service) \| [example](tests/handlePing.js)).
 
 ```js
-const localSeq = 921;
-scanpay.seq(localSeq, options)
-    .then(obj => console.log(obj.changes))
+scanpay.sync.validatePing(body, headers['x-signature'])
+    .then((ping) => {
+        console.log(ping);  // output: { "shopid": 1153, "seq": 119 }
+        if (ping.seq > db.scanpaySeqNum) console.log('Pull changes!');
+    })
+    .catch((err) => {
+        if (err.type !== 'ScanpayInvalidPing') console.log(err);
+    });
+```
+
+#### sync.pull(integer, options)
+Pull an array of changes after a specific `seq`. ([docs](https://docs.scanpay.dk/synchronization#sequence-request) \| [example](tests/seq.js)).
+
+```js
+scanpay.sync.pull(119)
+    .then(obj => {
+        console.log(obj); // output: { "seq": 120, changes: [{…}] }
+    })
     .catch(err => console.error(err));
 ```
 
-#### handlePing(string, string)
 
-Handle and validate synchronization pings.
-The method accepts two arguments, the body of the received ping and the `X-Signature` HTTP header. The method returns an object ([docs](https://docs.scanpay.dk/synchronization#ping-service) \| [example](tests/handlePing.js)).
-
-```js
-try {
-    const json = scanpay.handlePing(body, req.headers['x-signature']);
-} catch (e) { /* handle errors */ }
-```
-
-
-
-
-### Options
+## Options
 
 All methods, except `handlePing`, accept an optional per-request `options` object. You can use it to:
 
@@ -187,9 +192,6 @@ switch (err.type) {
     break;
   case 'ScanpayAPIError':
     // An error occurred internally with Scanpay's API
-    break;
-  case 'ScanpayConnectionError':
-    // Some kind of error occurred during the HTTPS communication
     break;
   case 'ScanpayAuthenticationError':
     // You probably used an incorrect API key
