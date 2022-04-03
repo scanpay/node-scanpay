@@ -46,7 +46,7 @@ Delete a payment link. **Not implemented yet; ETA: 2022-07**
 
 ```js
 scanpay.paymentLink.delete('https://betal.scanpay.dk/ax18s0')
-    .then(res => console.log(res.url))
+    .then(() => console.log('Link deleted'))
     .catch(err => console.error(err));
 ```
 
