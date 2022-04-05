@@ -145,7 +145,7 @@ Our synchronization paradigm *(“ping-pull”)* is a hybrid of push and pull. I
 Securely validate and parse the ping body with the corresponding `X-Signature` HTTP header. Authentic pings return a JSON object with your sequence number, `seq`, which you can use to determine if you are synchronized. ([docs](https://docs.scanpay.dk/synchronization#ping-service) \| [example](tests/handlePing.js)).
 
 ```js
-scanpay.sync.validatePing(body, headers['x-signature'])
+scanpay.sync.parsePing(body, headers['x-signature'])
     .then((ping) => {
         console.log(ping);  // output: { "shopid": 1153, "seq": 119 }
         if (ping.seq > db.scanpaySeqNum) console.log('Pull changes!');
