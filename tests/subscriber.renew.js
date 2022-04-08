@@ -11,8 +11,7 @@ const options = {
     hostname: 'api.test.scanpay.dk',
     headers: {
         'X-Cardholder-IP': '189.127.159.146' // Customer IP address (recommended)
-    },
-    debug: true
+    }
 };
 
 const data = {
@@ -45,8 +44,9 @@ const data = {
 };
 
 const subscriberID = 68;
-scanpay.renew(subscriberID, data, options).then((url) => {
-    console.log('Subscriber renewal URL: ' + url);
-}, (err) => {
-    console.log(err);
-});
+scanpay.subscriber.renew(subscriberID, data, options)
+    .then((res) => {
+        console.log('Subscriber renewal URL: ' + res.url);
+    })
+    .catch(err => console.log(err));
+

@@ -16,8 +16,6 @@ const options = {
 };
 
 const data = {
-    orderid: 'a766409',
-    language: 'da',
     successurl: 'https://blixen.dk/',
     subscriber: {
         ref: 'sub1234'
@@ -51,17 +49,17 @@ const data = {
 
 
 (async () => {
-    await scanpay.subscriptionLink(data, options)
-        .then(url => console.log('Subscription link: ' + url))
+    await scanpay.subscriber.create(data, options)
+        .then(res => console.log('Subscription link: ' + res.url))
         .catch(err => console.log(err));
 
     // Absolute minimal (not recommended)
-    await scanpay.subscriptionLink({
+    await scanpay.subscriber.create({
         subscriber: {
-            ref: '5'
-        }, options
-    })
-        .then(url => console.log('Subscription link: ' + url))
+            ref: 'customer8'
+        }
+    }, options)
+        .then(res => console.log('Subscription link: ' + res.url))
         .catch(err => console.log(err));
 
 })();

@@ -1,6 +1,8 @@
 # Scanpay Node.js library
 
-The Scanpay Node.js library provides convenient and simplified access to the Scanpay API from applications written in server-side JavaScript (Node.js). The library is developed and maintained by Scanpay ApS in Denmark. You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk), or chat with us on IRC at libera.chat #scanpay ([webchat](https://web.libera.chat/#scanpay)).
+The Scanpay Node.js library provides convenient and simplified access to the Scanpay API from applications written in server-side JavaScript (Node.js). The library is developed and maintained by Scanpay ApS in Denmark.
+
+You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk), or chat with us on IRC at libera.chat #scanpay ([webchat](https://web.libera.chat/#scanpay)).
 
 ## Installation
 
@@ -58,7 +60,7 @@ Fully or partially capture an authorized amount of a transaction. You need to in
 
 ```js
 scanpay.transaction.capture(1337, {
-        amount: '6995.95 DKK',
+        total: '6995.95 DKK',
         index: 0
     })
     .then(res => console.log(res))
@@ -69,13 +71,8 @@ scanpay.transaction.capture(1337, {
 Refund a captured amount from a transaction. **Not implemented yet; ETA: 2022-07**
 
 ```js
-scanpay.transaction.refund(65, 1337, {
-        amount: '6995.95 DKK',
-        index: 1
-    })
-
-scanpay.transaction.refund('65:trn#1337', {
-        amount: '6995.95 DKK',
+scanpay.transaction.refund(1337, {
+        total: '6995.95 DKK',
         index: 1
     })
     .then(res => console.log(res))
@@ -110,7 +107,7 @@ Charge an amount from an existing subscriber. Charges are authorizations, so you
 
 ```js
 const options = {
-    idempotency: db.invoices['inv-39'].idempotencyKey;
+    idempotency: scanpay.generateIdempotencyKey()
 };
 scanpay.subscriber.charge(5, {
         orderid: 'inv-39',

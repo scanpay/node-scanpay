@@ -20,22 +20,18 @@ const data = {
 
 const options = {
     hostname: 'api.test.scanpay.dk',
-    debug: true,
-    headers: {
-        'Idempotency-Key': scanpay.generateIdempotencyKey()
-    }
+    idempotency: scanpay.generateIdempotencyKey()
 };
 
-
 (async () => {
-    await scanpay.charge(subscriberID, data, options)
+    await scanpay.subscriber.charge(subscriberID, data, options)
         .then(res => console.log(res))
         .catch(err => console.log(err));
 
     /*  NOTICE 1: Another charge with the same Idempotency-Key
         will return the original charge response. It will NOT
         create a new charge. This is to prevent faulty charges. */
-    await scanpay.charge(subscriberID, data, options)
+    await scanpay.subscriber.charge(subscriberID, data, options)
         .then(res => console.log(res))
         .catch(err => console.log(err));
 
@@ -45,16 +41,15 @@ const options = {
         it change the original charge. */
     subscriberID += 1;
     data.items[0].total = '0.15 DKK';
-    await scanpay.charge(subscriberID, data, options)
+    await scanpay.subscriber.charge(subscriberID, data, options)
         .then(res => console.log(res))
         .catch(err => console.log(err));
 
 
     /*  NOTICE 3: You have to generate a new Idempotency-Key, if
         we want to make a new charge. */
-    subscriberID = String(subscriberID); // Test String input.
-    options.headers['Idempotency-Key'] = scanpay.generateIdempotencyKey();
-    await scanpay.charge(subscriberID, data, options)
+    options.idempotency = scanpay.generateIdempotencyKey()
+    await scanpay.subscriber.charge(subscriberID, data, options)
         .then(res => console.log(res))
         .catch(err => console.log(err));
 
