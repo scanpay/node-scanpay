@@ -32,7 +32,6 @@ const options = {
         .then(res => console.log(res))
         .catch(err => console.log(err));
 
-
     /*  NOTICE 1: Another charge with the same Idempotency-Key
         will return the original charge response. It will NOT
         create a new charge. This is to prevent faulty charges. */

@@ -69,7 +69,12 @@ scanpay.transaction.capture(1337, {
 Refund a captured amount from a transaction. **Not implemented yet; ETA: 2022-07**
 
 ```js
-scanpay.transaction.refund(1337, {
+scanpay.transaction.refund(65, 1337, {
+        amount: '6995.95 DKK',
+        index: 1
+    })
+
+scanpay.transaction.refund('65:trn#1337', {
         amount: '6995.95 DKK',
         index: 1
     })

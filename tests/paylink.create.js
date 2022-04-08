@@ -62,9 +62,9 @@ const data = {
 
 
 (async () => {
-    await scanpay.paymentLink(data, options)
-        .then((url) => {
-            console.log('payment link: ' + url);
+    await scanpay.paylink.create(data, options)
+        .then((res) => {
+            console.log('payment link: ' + res.url);
         })
         .catch((err) => {
             console.log(err);
@@ -72,25 +72,25 @@ const data = {
 
 
     // Absolute minimal (not recommended)
-    await scanpay.paymentLink({
+    await scanpay.paylink.create({
         items: [{
             total: '200 DKK'
         }]
     }, options)
-        .then(url => console.log('payment link: ' + url))
+        .then(res => console.log('payment link: ' + res.url))
         .catch((err) => {
             console.log(err);
         });
 
 
     // Old scheme (DEPRECATED)
-    await scanpay.paymentLink({
+    await scanpay.paylink.create({
         items: [{
             price: '200 DKK',
             quantity: 2,
         }]
     }, options)
-        .then(url => console.log('payment link: ' + url))
+        .then(res => console.log('payment link: ' + res.url))
         .catch((err) => {
             console.log(err);
         });

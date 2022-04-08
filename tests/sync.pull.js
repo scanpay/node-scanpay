@@ -13,13 +13,13 @@ const options = {
 };
 
 // Second test: Apply changes since last seq call
-let dbseq = 800; // Stored in the shop database after last seq.
+let dbseq = 900; // Stored in the shop database after last seq.
 async function applyChanges() {
     // Loop through all changes
     while (1) {
         let res;
         try {
-            res = await scanpay.seq(dbseq, options);
+            res = await scanpay.sync.pull(dbseq, options);
         } catch (e) {
             console.log(e);
             return;
